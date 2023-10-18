@@ -1,118 +1,263 @@
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
+import axios from 'axios';
+import querystring from "querystring"
 
 const inter = Inter({ subsets: ['latin'] })
+import React, {FC, useEffect, useState} from 'react';
+import SideNav from '@/components/SIdeNav';
+import SignUpModal from '@/components/SignUpModal';
+import TopNavbar from '@/components/TopNavbar';
+import MainSection from '@/components/MainSection';
+import SignInModal from '@/components/SignInModal';
 
-export default function Home() {
+const Home: FC = () => {
+
+  interface SignUpData{
+    [key: string]: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    country: string;
+    state: string;
+    gender: string;
+    address: string;
+    password: string;
+    password_confirmation: string;
+  
+  }
+
+  interface SignInData{
+    [key: string]: string;
+    email: string;
+    password: string;
+  }
+
+  interface UserData {
+    created_at: string;
+    email: string;
+    email_verified_at: string | null;
+    first_name: string;
+    id: number | null;
+    last_name: string;
+    phone: string;
+    role: {
+      id: number | null;
+      name: string;
+      created_at: string;
+      updated_at: string;
+    };
+    role_id: number;
+    updated_at: string;
+  }
+
+  const initialSignInData: SignInData = {
+    email: '',
+    password: '',
+  };
+
+  const initialSignUpData: SignUpData = {
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    country: '',
+    state: '',
+    gender: '',
+    address: '',
+    password: '',
+    password_confirmation: '',
+  };
+
+  const initialUserData: UserData = {
+    created_at: '',
+    email: '',
+    email_verified_at: null,
+    first_name: '',
+    id: null,
+    last_name: '',
+    phone: '',
+    role: {
+      id: null,
+      name: '',
+      created_at: '',
+      updated_at: '',
+    },
+    role_id: 0,
+    updated_at: '',
+  };
+  
+
+
+
+  const [userSignUpData, setUserSignUpData] = useState<SignUpData>(initialSignUpData);
+  const [userSignInData, setUserSignInData] = useState<SignInData>(initialSignInData);
+  const [signUpModal, setSignUpModal] = useState< boolean >(false)
+  const [signInModal, setSignInModal] = useState< boolean >(false)
+  const [signInLoading, setSignInLoading] = useState< boolean >(false)
+  const [userData, setUserData] = useState<UserData>(initialUserData)
+  const [token, setToken] = useState<string | null>('')
+  const [podcasts, setPodcasts] = useState<any>()
+  
+  const handleSignUp = (e: React.FormEvent): void => {
+    e.preventDefault();
+    
+    // Define the data you want to send.
+    // console.log("working")
+   if(userSignUpData.password == userSignUpData.password_confirmation){
+    // console.log("password check complete")
+    try{ 
+    const postData = new URLSearchParams();
+    const Keys = Object.keys(userSignUpData)
+    Keys.forEach((key) => {
+      const value = userSignUpData[key];
+      postData.append(key, value)
+    })
+    
+    // Define the URL and headers.
+    const url = 'https://wokpa.ddns.net/api/listeners/register';
+    const headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    
+    // Send the POST request using Axios.
+    axios.post(url, postData, { headers })
+      .then(response => {
+        // Handle the response here.
+        console.log(response.data); // You can access the response data.
+      })
+      .catch(error => {
+        // Handle errors here.
+        console.error(error);
+      });}
+    catch(error){
+      console.log(error)
+    }}
+  }
+
+  const updateUserData = (key: keyof SignUpData, value: string) => {
+    setUserSignUpData((prevData) => ({
+      ...prevData,
+      [key]: value,
+    }));
+  };
+
+  const handleSignIn = (e: React.FormEvent): void => {
+    e.preventDefault();
+    try{
+      const postData = new URLSearchParams();
+      const Keys = Object.keys(userSignInData)
+      Keys.forEach((key) => {
+        const value = userSignInData[key];
+        postData.append(key, value)
+      })
+
+      const url = 'https://wokpa.ddns.net/api/listeners/login';
+      const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      };
+
+      axios.post(url, postData, { headers })
+      .then(response => {
+        // Handle the response here.
+        console.log(response.data); // You can access the response data.
+        setUserData({...response.data.data?.user})
+        setToken(response.data.data?.token)
+        sessionStorage.setItem("token", response.data.data?.token)
+        sessionStorage.setItem("user", JSON.stringify(response.data.data?.user))
+      })
+      .catch(error => {
+        // Handle errors here.
+        console.error(error);
+      })
+
+    }catch(error){
+      console.log(error)
+    }
+
+  }
+
+  useEffect(() => {
+    const tokenInStorage = sessionStorage.getItem("token")
+    if(tokenInStorage){
+      setToken(tokenInStorage)
+    }
+  }, [])
+
+  useEffect(() => {
+    const UserInStorage = sessionStorage.getItem("user")
+
+    let parsedUserData: UserData | null = null;
+
+    if (UserInStorage !== null) {
+      try {
+        parsedUserData = JSON.parse(UserInStorage);
+        setUserData(parsedUserData as UserData)
+      } catch (error) {
+        console.error('Error parsing userData:', error);
+      }
+    }
+    if(UserInStorage){
+      setToken(UserInStorage)
+    }
+  }, [])
+
+  // useEffect(() => {
+  //   if(token){
+  //     const url = "https://wokpa.ddns.net/api/listeners/podcasts/subscriptions"
+  //     const headers = {
+  //       'Authorization': token, // Example: Add an Authorization header
+  //     };
+  //     axios.get(url, {
+  //       headers: headers
+  //     })
+  //     .then(response => {
+  //       // Handle the response here.
+  //       console.log(response); // You can access the response data.
+
+  //     })
+  //     .catch(error => {
+  //       // Handle errors here.
+  //       console.error(error);
+  //     })
+  //   }
+  // }, [token])
+
+  
+
   return (
     <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
+      className={` ${inter.className}`}
+      style={{background: '#212121'}}
     >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+      <div className="flex h-screen w-screen ">
+        <div className="w-2/12 "> 
+          <SideNav />
+        </div>
+        <div className="w-5/6  ">
+          <TopNavbar userFirstName={userData.first_name} setShowSignUpModal={setSignUpModal} handleSignUp={handleSignUp} setShowSignInModal={setSignInModal} />
+          <MainSection />
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      <SignUpModal 
+        showModal={signUpModal} 
+        setShowModal={setSignUpModal} 
+        formData={userSignUpData} 
+        setFormData={setUserSignUpData}
+        handleSignUp={handleSignUp}
+      />
+      <SignInModal 
+        showModal={signInModal} 
+        setShowModal={setSignInModal} 
+        handleSignIn={handleSignIn} 
+        signInData={userSignInData} 
+        setSignInData={setUserSignInData} 
+      />
     </main>
-  )
-}
+  );
+};
+
+export default Home;

@@ -38,3 +38,10 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+curl -X 'POST' \
+  'https://wokpa.ddns.net/api/listeners/register' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -d 'gender=MALE&phone=08123456788&state=Lagos&last_name=adebayo&address=2%20Allen%20Avenue%2C%20Ikeja&country=Nigeria&password_confirmation=password&first_name=oluyemi&password=password&email=oluyemiadebo3%40wokpa.com'

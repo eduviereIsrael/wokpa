@@ -16,7 +16,8 @@ const config: Config = {
       colors: {
        'brand-color': "#1EAEA3",
        "brand-color2": "#7B61FF",
-       "bg3": "rgba(48, 48, 48, 0.50);"
+       "bg3": "rgba(48, 48, 48, 0.50)",
+       "gray-text": "#B0B0B0"
       }
     },
   },

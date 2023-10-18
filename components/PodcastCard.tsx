@@ -25,9 +25,9 @@ const PodcastCard = ({podcast}: Podcast) => {
       <img src={coverImage} alt="podcast image" className='w-full m-0 p-0 '  />
       <h5 className='pl-2' >{trimTitle(title)}</h5>
       <p className='pl-2  text-xs font-normal mt-3 ' >By: {owner}</p>
-      <div className='px-2 mt-auto flex items-center justify-between w-full' >
-        <span className='flex items-center justify-between mt-3 ' >
-          <img src="/followcollection.svg" alt="" className='' />
+      <div className='px-2 flex items-center justify-between w-full mt-3' >
+        <span className='flex items-center justify-between text-gray-text text-xs' >
+          <img src="/followcollection.svg" alt="" className='mr-1' />
           {genre}
         </span>
         <img src="/gifticon.svg" alt="" />

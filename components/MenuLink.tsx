@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 import Link from 'next/link'
-
+import { useRouter } from 'next/router';
 
 interface Props  {
 
@@ -14,8 +14,14 @@ interface Props  {
 const MenuLink = ({menuItem}: Props) => {
     const { name, link, icon } = menuItem
     const [activeLink, setActiveLink] = useState<string | null>(null)
+    const router = useRouter()
+
+    const handleClick = ():void => {
+        router.push(link)
+    }
   return (
     <div 
+        onClick={handleClick}
         className={` flex flex-row items-center py-2 px-4 cursor-pointer w-6/6 `} 
         onMouseEnter={() => setActiveLink(name)} 
         onMouseLeave={() => setActiveLink(null)} 

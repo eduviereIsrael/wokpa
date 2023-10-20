@@ -9,22 +9,22 @@ export const mainMenuItems: MenuItem[] = [
     {
         name: "Discover",
         icon: "/discover.svg",
-        link: ""
+        link: "/"
     },
     {
         name: "Top 50 podcast",
         icon: "/top50.svg",
-        link: ""
+        link: "topfiftypodcast"
     },
     {
         name: "Categories",
         icon: "/categories.svg",
-        link: ""
+        link: "categories"
     },
     {
         name: "Add your podcast",
         icon: "/add.svg",
-        link: ""
+        link: "addpodcast"
     },
 ]
 
